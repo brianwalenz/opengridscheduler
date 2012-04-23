@@ -2202,7 +2202,7 @@ static void handle_signals_and_methods(
          }
       } else if (received_signal != 0 || *postponed_signal != 0) { /* received any other signal */
 #if defined(INTERIX)
-         sge_set_environment();
+         sge_set_environment(true);
          if(strcmp(childname, "job") == 0 &&
             wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
             /*
@@ -2359,7 +2359,7 @@ struct rusage *rusage      /* accounting information */
 
 #if defined(INTERIX)
       /* <Windows_GUI> */
-      sge_set_environment();
+      sge_set_environment(true);
       if (strcmp(childname, "job") == 0 &&
          wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
          if (npid != -1) {      
@@ -2603,7 +2603,7 @@ static int start_async_command(const char *descr, char *cmd)
       pid = getpid();
       setpgid(pid, pid);  
       setrlimits(0);
-      sge_set_environment();
+      sge_set_environment(true);
       umask(022);
       tmp_str = search_conf_val("qsub_gid");
       if (tmp_str && strcmp(tmp_str, "no")) {
@@ -2876,6 +2876,9 @@ static int notify_tasker(u_long32 exit_status)
          strcpy(sig_info_file, value);
       if (!strcmp(name, "PVM_TASK_ID"))
          strcpy(pvm_task_id, value);
+
+      if (is_dangerous_env(name))
+         continue;
 
       sge_set_env_value(name, value);
    }
