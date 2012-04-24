@@ -258,6 +258,9 @@ Linux)
    2.6.*)
       lxrelease=26
       ;;
+   3.*)
+      lxrelease=26
+      ;;
    *)
       unsupported="UNSUPPORTED-"
       lxrelease=$osrelease
