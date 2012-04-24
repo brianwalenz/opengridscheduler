@@ -656,8 +656,6 @@ static int handle_task(sge_gdi_ctx_class_t *ctx, lListElem *petrep, char *commpr
 
    DENTER(TOP_LAYER, "handle_task");
 
-   petep = lCreateElem(PET_Type);
-
 #ifdef KERBEROS
    if (krb_verify_user(de->host, de->commproc, de->id,
                        lGetString(petrep, PETR_owner)) < 0) {
@@ -673,9 +671,20 @@ static int handle_task(sge_gdi_ctx_class_t *ctx, lListElem *petrep, char *commpr
       goto Error;
    }
 
-   if (!sge_security_verify_unique_identifier(false, 
-                                         lGetString(jep, JB_owner), progname, 0,
-                                         host, commproc, id)) {
+  /*
+   * Verify that it is actually the job owner starting a pe task:
+   * - in CSP mode, we can check against the user certificate
+   * - in general we can compare the pe task request owner against the job owner
+   */
+   if (!sge_security_verify_unique_identifier(false, lGetString(jep, JB_owner), progname, 0, host, commproc, id))
+   {
+      /* Error message is generated in sge_security_verify_unique_identifier */
+      goto Error;
+   }
+
+   if (strcmp(lGetString(jep, JB_owner), lGetString(petrep, PETR_owner)) != 0)
+   {
+      WARNING((SGE_EVENT, MSG_DENIED_PETASKREQUEST_WRONG_USER_SS, lGetString(petrep, PETR_owner), lGetString(jep, JB_owner)));
       goto Error;
    }
 
@@ -695,6 +704,8 @@ static int handle_task(sge_gdi_ctx_class_t *ctx, lListElem *petrep, char *commpr
    tid = MAX(1, lGetUlong(jatep, JAT_next_pe_task_id));
    sprintf(new_task_id, "%d.%s", tid, unqualified_hostname);
    DPRINTF(("using pe_task_id_str %s for job "sge_u32"."sge_u32"\n", new_task_id, jobid, jataskid));
+
+   petep = lCreateElem(PET_Type);
    lSetString(petep, PET_id, new_task_id);
 
    /* set taskid for next task to be started */
@@ -723,6 +734,7 @@ static int handle_task(sge_gdi_ctx_class_t *ctx, lListElem *petrep, char *commpr
       if (gdil == NULL) {  /* also no already exited task found -> no way to start new task */
          ERROR((SGE_EVENT, MSG_JOB_NOFREEQ_USSS, sge_u32c(jobid), 
                 lGetString(petrep, PETR_owner), host, qualified_hostname));
+         lFreeElem(&petep);
          goto Error;
       }
    }
