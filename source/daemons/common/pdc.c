@@ -824,17 +824,18 @@ FCLOSE_ERROR:
 
 #endif
 
-static int
-get_gmt(void)
+static int get_gmt(void)
 {
    struct timeval now;
 
-#ifdef SOLARIS
-   gettimeofday(&now, NULL);
-#else
+#if 0
+   /* new POSIX spec: behavior is unspecified when tzp is noy NULL. */
+
    struct timezone tzp;
    gettimeofday(&now, &tzp);
 #endif
+
+   gettimeofday(&now, NULL);
 
    return now.tv_sec;
 }
