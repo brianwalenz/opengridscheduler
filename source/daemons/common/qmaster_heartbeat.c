@@ -135,6 +135,9 @@ int inc_qmaster_heartbeat(char *file, int write_timeout , int* beat_value) {
    struct timeval end_time;
    unsigned long write_time;
 
+   //  DISABLE HEARTBEAT so it stops thrashing my disk.
+   return(0);
+
    DENTER(TOP_LAYER, "inc_qmaster_heartbeat");
 
    if (file == NULL) {
