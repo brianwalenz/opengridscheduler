@@ -35,7 +35,7 @@
 
 umask 022
 
-TOPFILES="3rd_party bin catman ckpt doc examples include inst_sge \
+TOPFILES="3rd_party bin ckpt doc examples include inst_sge \
           install_execd install_qmaster lib man mpi pvm hadoop qmon util utilbin"
 
 HASARCHDIR="bin lib examples/jobsbin utilbin"
@@ -65,8 +65,7 @@ SHARED_LIBRARIES="libcom libcull libgdi librmon libsched libsge libuti \
                   libevc libevm libmir \
                   libjuti libjgdi"
 
-QMON_SHARED_LIBRARIES="libXbae libXicon libXmt libXspin libXtab"
-QMON_NEED_SHARED_LIBRARIES="libXltree"
+QMON_SHARED_LIBRARIES="libXbae libXicon libXmt libXspin libXtab libXltree"
 OPENSSL_SHARED_LIBRARIES="libcrypto libssl"
 
 BERKELEYDB_SHARED_LIBRARIES="libdb-4.4"
@@ -75,11 +74,11 @@ DRMAA_SHARED_LIBRARIES="libdrmaa"
 # The last number listed here will be the verson linked from libdrmaa.so
 DRMAA_SHARED_LIB_VERSIONS="1.0"
 DRMAA_HEADER_FILES="libs/japi/drmaa.h"
-DRMAAJ_FILES="CLASSES/jdrmaa/drmaa"
+DRMAAJ_FILES="classes/jdrmaa/drmaa"
 
 JNI_SHARED_LIBRARIES="libdrmaa libjuti libjgdi"
 
-JUTIJ_FILES="CLASSES/juti/juti"
+JUTIJ_FILES="classes/juti/juti"
 JGDIJ_FILES="libs/jgdi/build/jgdi"
 JJSV_FILES="CLASSES/jjsv/JSV"
 JAVA_LIBRARIES="${DRMAAJ_FILES} ${JUTIJ_FILES} ${JGDIJ_FILES} ${JJSV_FILES}"
@@ -778,6 +777,12 @@ for prog in $PROG; do
       hadoop)
          insthadoop=true
          ;;
+      nodrmaa)
+         instdrmaa=false
+         ;;
+      noqmon)
+         instqmon=false
+         ;;
       qmontree)
          instqmon=true
          instcommon=true
@@ -1056,19 +1061,6 @@ if [ $instcommon = true ]; then
          Execute chmod 755 $DEST_SGE_ROOT/$MYRINETBASE/$f
       done
 
-      HPCBASE=mpi/SunHPCT5
-      Execute mkdir -p $DEST_SGE_ROOT/$HPCBASE
-      
-      for f in $SUNHPCTIGHT_FILES; do
-         Execute cp dist/$HPCBASE/$f $DEST_SGE_ROOT/$HPCBASE
-         Execute chmod 644 $DEST_SGE_ROOT/$HPCBASE/$f
-      done
-   
-      for f in $SUNHPCTIGHT_SCRIPTS; do
-         Execute cp dist/$HPCBASE/$f $DEST_SGE_ROOT/$HPCBASE
-         Execute chmod 755 $DEST_SGE_ROOT/$HPCBASE/$f
-      done
-
       Cleanup mpi
    fi
 
@@ -1290,7 +1282,7 @@ for i in $ARCH; do
 
       for prog in $PROG; do
          case $prog in
-            jobs|ckpt|doc|inst_sge|utiltree|examples|man|mpi|pvm|hadoop|qmontree|common|distcommon|utilbin|arco)
+            jobs|ckpt|doc|inst_sge|utiltree|examples|man|mpi|nodrmaa|noqmon|pvm|hadoop|qmontree|common|distcommon|utilbin|arco)
                : 
                ;;
             qmake)
@@ -1415,6 +1407,8 @@ for i in $ARCH; do
                      InstallProg $BERKELEYDBBASE/$DSTARCH/bin/$prog
                   elif [ -f $BERKELEYDBBASE/bin/$prog ]; then
                      InstallProg $BERKELEYDBBASE/bin/$prog
+		  elif [ -f $BERKELEYDBBASE/bin/$prog${BDB_LIB_SUFFIX} ]; then
+		     InstallProgAs $BERKELEYDBBASE/bin/$prog${BDB_LIB_SUFFIX} $prog
                   fi
                fi
             elif [ $prog = spoolinit -o $prog = spooldefaults ]; then
@@ -1545,6 +1539,8 @@ for i in $ARCH; do
                   libname="$lib.$shlibext"
                elif [ $DSTARCH = darwin-ppc -o $DSTARCH = darwin-x86 -o $DSTARCH = darwin-x64 ];  then
                   libname="$lib.$OPENSSLSOVERSION.$shlibext"
+               elif [ ${DSTARCH%%-*} = fbsd ]; then
+                  libname="$OPENSSLBASE/lib/$lib.$shlibext"
                else
                   libname="$lib.$shlibext.$OPENSSLSOVERSION"
                fi
@@ -1559,7 +1555,7 @@ for i in $ARCH; do
                   InstallProg $libname
                   if [ $DSTARCH = tru64 ]; then
                      :
-                  elif [ $DSTARCH = darwin-ppc -o $DSTARCH = darwin-x86 -o $DSTARCH = darwin-x64 ]; then
+                  elif [ $DSTARCH = darwin-ppc -o $DSTARCH = darwin-x86 -o $DSTARCH = darwin-x64 -o ${DSTARCH%%-*} = fbsd ]; then
                      (cd $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH; \
                       ln -s $lib.$OPENSSLSOVERSION.$shlibext $lib.$shlibext)
                   else

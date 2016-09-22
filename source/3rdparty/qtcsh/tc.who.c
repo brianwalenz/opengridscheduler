@@ -62,7 +62,7 @@ RCSID("$Id: tc.who.c,v 1.2 2005/01/19 11:12:52 ernst Exp $")
 #  define _PATH_UTMP UTMPX_FILE
 # endif /* _PATH_UTMP */
 # define utmp utmpx
-#  ifndef INTERIX
+#  if !defined(INTERIX) && !defined(FREEBSD)
 #   define ut_time ut_xtime
 #  else
 #   define ut_time ut_tv.tv_sec

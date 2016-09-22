@@ -211,7 +211,7 @@ case $ARCH in
    RC_FILE=freebsd
    RC_PREFIX=/usr/local/etc/rc.d
    RC_SUFFIX=.sh
-   XTERM=/usr/X11R6/bin/xterm
+   XTERM=/usr/local/bin/xterm
    MAILER=/usr/bin/mail
    QLOGIN_COMMAND=telnet
    QLOGIN_DAEMON=/usr/libexec/telnetd

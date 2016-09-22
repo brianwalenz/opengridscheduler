@@ -209,7 +209,7 @@ sge_nprocs.o:	$(UTILIB_DIR)/sge_nprocs.c
 		$(CC) $(CFLAGS) $(COD_NPROCS_CFLAGS) $(SHARED_CFLAGS) -c $(UTILIB_DIR)/sge_nprocs.c
 
 sge_arch.o:	$(UTILIB_DIR)/sge_arch.c
-		$(CC) $(CFLAGS) $(SHARED_CFLAGS) -c $(UTILIB_DIR)/sge_arch.c
+		$(CC) -ansi $(CFLAGS) $(SHARED_CFLAGS) -c $(UTILIB_DIR)/sge_arch.c
 
 sge_loadmem.o:	$(UTILIB_DIR)/sge_loadmem.c 
 		$(CC) $(CFLAGS) $(MEMCFLAG) $(SHARED_CFLAGS) -c $(UTILIB_DIR)/sge_loadmem.c

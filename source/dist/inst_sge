@@ -902,7 +902,7 @@ if [ "$QMASTER" = "install" -a "$UPDATE" != "true" ]; then
  GetQmasterSpoolDir $euid
  SetCellDependentVariables
  WindowsSupport
- SetPermissions
+# SetPermissions
  SelectHostNameResolving
  SetProductMode
  GetJMXPort

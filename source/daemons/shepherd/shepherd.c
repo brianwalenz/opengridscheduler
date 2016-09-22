@@ -111,7 +111,7 @@ struct rusage {
 #include "windows_gui.h"
 #endif
 
-#if defined(DARWIN)
+#if defined(DARWIN) || defined(FREEBSD)
 #  include <termios.h>
 #  include <sys/ttycom.h>
 #  include <sys/ioctl.h>    
