@@ -841,6 +841,7 @@ int sge_loadmem(sge_mem_info_t *mem_info)
    int			swap_count, usedswap_count;
    size_t		tmpsize;
    unsigned int		page_size;
+   double         page_size_scale;
    unsigned int		page_count;
    unsigned int		free_count, cache_count, inactive_count;
    kvm_t		*kd;
@@ -850,11 +851,12 @@ int sge_loadmem(sge_mem_info_t *mem_info)
    if (sysctlbyname("vm.stats.vm.v_page_size", &page_size, &tmpsize,
       NULL, 0) == -1)
       return -1;
+   page_size_scale = (double)page_size / (1024.0*1024.0);
    tmpsize = sizeof(page_count);
    if (sysctlbyname("vm.stats.vm.v_page_count", &page_count, &tmpsize,
       NULL, 0) == -1)
       return -1;
-   mem_info->mem_total = (page_count * page_size) / (1024.0*1024.0);
+   mem_info->mem_total = page_count * page_size_scale;
 
    /*
     * The concept of free memory doesn't make much sense when you're
@@ -874,8 +876,7 @@ int sge_loadmem(sge_mem_info_t *mem_info)
       NULL, 0) == -1)
       return -1;
    mem_info->mem_free =
-      ((free_count + cache_count + inactive_count) * page_size) /
-      (1024.0*1024.0);
+      (free_count + cache_count + inactive_count) * page_size_scale;
 
    /*
     * Grovel around in kernel memory to find out how much swap we have.
@@ -899,9 +900,8 @@ int sge_loadmem(sge_mem_info_t *mem_info)
          usedswap_count += kswap[i].ksw_used;
       }
    }
-   mem_info->swap_total = (swap_count * page_size) / (1024.0*1024.0);
-   mem_info->swap_free = ((swap_count - usedswap_count) * page_size) /
-      (1024.0*1024.0);
+   mem_info->swap_total = swap_count * page_size_scale;
+   mem_info->swap_free = (swap_count - usedswap_count) * page_size_scale;
 
    return 0;
 }
