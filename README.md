@@ -101,7 +101,6 @@ setenv SGE_ROOT  /usr/local/sge
 
 The 'official' installation wants you to run '/usr/local/sge/install_qmaster' and '/usr/local/sge/install_execd'.  I haven't done that recently, instead, just the following steps:
 
-
 ```
 pw groupadd sgeadmin -g 103
 pw useradd sgeadmin -u 103 -g 103 -h - -d /nonexistent -s /sbin/nologin -c "Sun Grid Engine Admin"
@@ -118,7 +117,6 @@ vi /etc/profile
 
 #  Add 'source /usr/local/sge/default/common/settings.csh'
 vi ~/.cshrc
-
 ```
 
 ## Configuration:
@@ -128,9 +126,9 @@ You're on your own here.  I'm using this old version because I've been using it 
 However, adding a new host isn't that hard:
 
 ```
-qconf -Ae new-server           #  With template from 'qconf -se', -ae might have worked too.
+qconf -Ae aye.home             #  With template from 'qconf -se', -ae might have worked too.
+qconf -Ae bee.home
 qconf -ah aye.home,bee.home    #  Add admin host.
 qconf -as aye.home,bee.home    #  Add submit host.
 qconf -aq big.q                #  Pops up vi to edit queue description.  Copied from servers.q.
-
 ```
