@@ -1,10 +1,6 @@
-This is a mirror of [Open Grid Scheduler](http://gridscheduler.sourceforge.net/), taken from
-[Subversion r156](https://sourceforge.net/p/gridscheduler/code/156/).  Patches from the (deceased)
-FreeBSD [sge62](https://www.freshports.org/sysutils/sge62/) port, and a few of my own (to make it
-work with more than 4GB memory) were then applied.
+This is a mirror of [Open Grid Scheduler](http://gridscheduler.sourceforge.net/), taken from [Subversion r156](https://sourceforge.net/p/gridscheduler/code/156/).  Patches from the (deceased) FreeBSD [sge62](https://www.freshports.org/sysutils/sge62/) port, and a few of my own (to make it work with more than 4GB memory) were then applied.
 
-Before you install this, consider [Son of Grid Engine](https://arc.liv.ac.uk/trac/SGE) (or maybe
-[here](https://arc.liv.ac.uk/SGE/)) which might actually be supported.
+Before you install this, consider [Son of Grid Engine](https://arc.liv.ac.uk/trac/SGE) (or maybe [here](https://arc.liv.ac.uk/SGE/)) which might actually be supported.
 
 ## Conversion:
 
@@ -103,11 +99,19 @@ setenv SGE_ROOT  /usr/local/sge
 
 ## Installation:
 
+The 'official' installation wants you to run '/usr/local/sge/install_qmaster' and '/usr/local/sge/install_execd'.  I haven't done that recently, instead, just the following steps:
+
+
 ```
 pw groupadd sgeadmin -g 103
 pw useradd sgeadmin -u 103 -g 103 -h - -d /nonexistent -s /sbin/nologin -c "Sun Grid Engine Admin"
 
 cp -p /usr/local/sge/rc.d_sge /usr/local/etc/rc.d/sge
+
+#  Load SGE on boot.  Add:
+#    sge_qmaster_enable="YES"
+#    sge_execd_enable="YES"
+vi /etc/rc.conf
 
 #  Add '. /usr/local/sge/default/common/settings.sh' so grid jobs have SGE configured too
 vi /etc/profile
@@ -119,6 +123,14 @@ vi ~/.cshrc
 
 ## Configuration:
 
-You're on your own here.  I'm using this old version because I've been using it for years,
-and it's already configured for me.
+You're on your own here.  I'm using this old version because I've been using it for years, and it's already configured for me.
 
+However, adding a new host isn't that hard:
+
+```
+qconf -Ae new-server           #  With template from 'qconf -se', -ae might have worked too.
+qconf -ah aye.home,bee.home    #  Add admin host.
+qconf -as aye.home,bee.home    #  Add submit host.
+qconf -aq big.q                #  Pops up vi to edit queue description.  Copied from servers.q.
+
+```
