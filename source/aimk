@@ -420,9 +420,10 @@ set SPOOLING_METHOD = "dynamic"
 set SPOOLING_LIBS   = "-lspoolloader -lspoold -lspool"
 set SPOOLING_DEPS   = "spoolloaderlib spooldlib spoollib spoolclib spoolblib"
 # we generate a berkeley db shared lib, so we need bdb include and lib path
-set CFLAGS            = "-I$BERKELEYDB_HOME/include/${BDB_INCLUDE_SUBDIR} $CFLAGS"
-set LFLAGS            = "-L$BERKELEYDB_HOME/lib/${BDB_LIB_SUBDIR} $LFLAGS"
-set SHARED_LFLAGS    = "$SHARED_LFLAGS -L$BERKELEYDB_HOME/lib/${BDB_LIB_SUBDIR}"
+echo "Disabled BerkeleyDB library paths."
+#set CFLAGS            = "-I$BERKELEYDB_HOME/include/${BDB_INCLUDE_SUBDIR} $CFLAGS"
+#set LFLAGS            = "-L$BERKELEYDB_HOME/lib/${BDB_LIB_SUBDIR} $LFLAGS"
+#set SHARED_LFLAGS    = "$SHARED_LFLAGS -L$BERKELEYDB_HOME/lib/${BDB_LIB_SUBDIR}"
 
 # JUTI Targets
 set JUTI_ALL  = juti_all
@@ -1210,6 +1211,16 @@ case DARWIN_PPC:
       set X86_ARCH = ""
    endif
 
+    #  Lots more at https://en.wikipedia.org/wiki/Darwin_(operating_system)
+    #
+    #  OSX 10.5  == kernel  9.x.x == Leopard
+    #  OSX 10.6  == kernel 10.x.x == Snow Leopard
+    #  OSX 10.7  == kernel 11.x.x == Lion
+    #  OSX 10.8  == kernel 12.x.x == Mountain Lion
+    #  OSX 10.9  == kernel 13.x.x == Mavericks
+    #  OSX 10.10 == kernel 14.x.x == Yosemite
+    #  OSX 10.11 == kernel 15.x.x == El Capitan
+
    set REL = `/usr/bin/uname -r`
    switch ($REL)
    case "6.*":
@@ -1219,6 +1230,12 @@ case DARWIN_PPC:
    case "7.*":
    case "8.*":
       set CFLAGS = "$OFLAG -no-cpp-precomp -flat_namespace -Wall -Wstrict-prototypes -DFD_SETSIZE=8192 -DDARWIN -D$BUILDARCH -DGETHOSTBYNAME -DGETHOSTBYADDR_M $DEBUG_FLAG $CFLAGS"
+      breaksw
+
+   case "15.*":
+      set CFLAGS = "$OFLAG -flat_namespace -Wall -Wno-format -Wstrict-prototypes -DFD_SETSIZE=8192 -DDARWIN -DDARWIN9 -D$BUILDARCH -DGETHOSTBYNAME -DGETHOSTBYADDR_M $DEBUG_FLAG $CFLAGS $X86_ARCH"
+      set SHARED_LFLAGS = "$SHARED_LFLAGS $X86_ARCH"
+      set LFLAGS        = "$LFLAGS        $X86_ARCH"
       breaksw
 
    default:
@@ -1256,7 +1273,8 @@ case DARWIN_PPC:
   
    # Can be overwritten in aimk.private or aimk.site 
    if ( ! $?MOTIFHOME ) then
-      set MOTIFHOME = /Applications/Darwin/openmotif-2.2.3
+      set MOTIFHOME = /opt/local
+#Applications/Darwin/openmotif-2.2.3
    endif
 
    set XMTDEF   = ""
