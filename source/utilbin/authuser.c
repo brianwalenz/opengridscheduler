@@ -66,7 +66,7 @@
 
 #if defined(IRIX65) || defined(AIX43) || defined(HP1164) || defined(INTERIX) || defined(ALPHA5) || defined(WINDOWS)
 #define JUTI_NO_PAM
-#elif defined(DARWIN)
+#elif defined(DARWIN) || defined(FREEBSD)
 //#include <pam/pam_appl.h>     //  Was this, with security/pam_appl the else case.  Not sure what 'else' it was catching.
 #include <security/pam_appl.h>
 #endif
